@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
 from app.config import settings
-from app.routers import auth, alumnos, grupos, instructores, tutores, niveles, leads, objetivos_semanales, evaluaciones, pagos
+from app.routers import auth, alumnos, grupos, instructores, tutores, niveles, leads, objetivos_semanales, evaluaciones, pagos, asistencias
 
 # Crear tablas en la base de datos
 Base.metadata.create_all(bind=engine)
@@ -33,6 +33,7 @@ app.include_router(leads.router)
 app.include_router(objetivos_semanales.router)
 app.include_router(evaluaciones.router)
 app.include_router(pagos.router)
+app.include_router(asistencias.router)
 
 
 @app.get("/")
