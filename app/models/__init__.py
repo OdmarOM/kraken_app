@@ -10,6 +10,8 @@ from app.models.objetivo_semanal import ObjetivoSemanal
 from app.models.lead import Lead
 from app.models.nivel import Nivel
 from app.models.horario_grupo import HorarioGrupo
+from app.models.aviso_evento import AvisoEvento
+from app.models.faq import FAQ
 
 __all__ = [
     "Admin",
@@ -24,4 +26,6 @@ __all__ = [
     "Lead",
     "Nivel",
     "HorarioGrupo",
+    "AvisoEvento",
+    "FAQ",
 ]

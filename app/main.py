@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.database import engine, Base
 from app.config import settings
-from app.routers import auth, alumnos, grupos, instructores, tutores, niveles, leads, objetivos_semanales, evaluaciones, pagos, asistencias
+from app.routers import auth, alumnos, grupos, instructores, tutores, niveles, leads, objetivos_semanales, evaluaciones, pagos, asistencias, avisos_eventos, faqs, uploads
+from pathlib import Path
 
 # Crear tablas en la base de datos
 Base.metadata.create_all(bind=engine)
@@ -22,6 +24,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Montar directorio de uploads como archivos estáticos (antes de las rutas API)
+uploads_dir = Path("/opt/acuaticapp-backend/uploads")
+if uploads_dir.exists():
+    app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
+
 # Incluir routers
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(alumnos.router)
@@ -34,6 +41,9 @@ app.include_router(objetivos_semanales.router)
 app.include_router(evaluaciones.router)
 app.include_router(pagos.router)
 app.include_router(asistencias.router)
+app.include_router(avisos_eventos.router)
+app.include_router(faqs.router)
+app.include_router(uploads.router)
 
 
 @app.get("/")

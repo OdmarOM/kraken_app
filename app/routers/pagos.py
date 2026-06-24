@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import date, datetime
 from calendar import month_name
+from pathlib import Path
+import os
 
 from app.database import get_db
 from app.models.pago import Pago, EstatusPago
@@ -100,8 +102,29 @@ def update_pago(pago_id: int, pago: PagoUpdate, db: Session = Depends(get_db)):
     
     update_data = pago.model_dump(exclude_unset=True)
     
+    # Guardar el estatus anterior para detectar cambio a PAGADO
+    estatus_anterior = db_pago.estatus
+    
     for key, value in update_data.items():
         setattr(db_pago, key, value)
+    
+    # Si el estatus cambió a PAGADO y hay un comprobante, eliminar el archivo
+    if estatus_anterior != EstatusPago.PAGADO and db_pago.estatus == EstatusPago.PAGADO:
+        if db_pago.comprobante_url:
+            try:
+                # Extraer el nombre del archivo de la URL
+                if db_pago.comprobante_url.startswith('/uploads/comprobantes/'):
+                    filename = db_pago.comprobante_url.split('/')[-1]
+                    file_path = Path("/opt/acuaticapp-backend/uploads/comprobantes") / filename
+                    
+                    if file_path.exists():
+                        os.remove(file_path)
+                        print(f"Comprobante eliminado: {filename}")
+                
+                # Limpiar la URL del comprobante
+                db_pago.comprobante_url = None
+            except Exception as e:
+                print(f"Error al eliminar comprobante: {e}")
     
     db.commit()
     db.refresh(db_pago)
