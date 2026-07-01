@@ -13,11 +13,12 @@ class EstatusLead(str, enum.Enum):
 
 
 class InteresLead(str, enum.Enum):
-    CLASES_NINOS = "Clases para Niños"
-    CLASES_ADULTOS = "Clases para Adultos"
-    CLASES_BEBES = "Clases para Bebés"
-    NATACION_COMPETITIVA = "Natación Competitiva"
-    REHABILITACION = "Rehabilitación"
+    CLASE_PRUEBA = "Clase de Prueba"
+    INSCRIPCION = "Inscripción"
+    INSCRIBIR = "Inscribir"
+    CONSULTAR_HORARIOS = "Consultar Horarios"
+    SOLICITAR_INFORMACION = "Solicitar Información"
+    CONTACTAR_PROFESOR = "Contactar Profesor"
     OTRO = "Otro"
 
 

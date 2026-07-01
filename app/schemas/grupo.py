@@ -31,6 +31,7 @@ class GrupoResponse(GrupoBase):
     creado_en: datetime
     actualizado_en: Optional[datetime] = None
     horarios: List[HorarioGrupoResponse] = []
+    disponibilidad: Optional[int] = None  # Lugares disponibles (cupo_maximo - alumnos_actuales)
 
     class Config:
         from_attributes = True

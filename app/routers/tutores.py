@@ -19,7 +19,12 @@ def create_tutor(tutor: TutorCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=List[TutorResponse])
-def get_tutores(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_tutores(skip: int = 0, limit: int = 100, telefono: str = None, db: Session = Depends(get_db)):
+    if telefono:
+        tutor = db.query(Tutor).filter(Tutor.telefono == telefono).first()
+        if not tutor:
+            raise HTTPException(status_code=404, detail="Tutor no encontrado con ese teléfono")
+        return [tutor]
     tutores = db.query(Tutor).offset(skip).limit(limit).all()
     return tutores
 

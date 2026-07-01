@@ -7,6 +7,7 @@ from app.database import get_db
 from app.models.grupo import Grupo
 from app.models.horario_grupo import HorarioGrupo, DiaSemana
 from app.models.instructor import Instructor
+from app.models.alumno import Alumno
 from app.schemas.grupo import GrupoCreate, GrupoUpdate, GrupoResponse
 from app.schemas.horario_grupo import HorarioGrupoCreate
 
@@ -117,6 +118,15 @@ def create_grupo(grupo: GrupoCreate, db: Session = Depends(get_db)):
 @router.get("/", response_model=List[GrupoResponse])
 def get_grupos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     grupos = db.query(Grupo).filter(Grupo.activo == True).offset(skip).limit(limit).all()
+    
+    # Calcular disponibilidad para cada grupo
+    for grupo in grupos:
+        alumnos_actuales = db.query(Alumno).filter(
+            Alumno.grupo_id == grupo.id,
+            Alumno.activo == True
+        ).count()
+        grupo.disponibilidad = grupo.cupo_maximo - alumnos_actuales
+    
     return grupos
 
 
@@ -125,6 +135,14 @@ def get_grupo(grupo_id: int, db: Session = Depends(get_db)):
     grupo = db.query(Grupo).filter(Grupo.id == grupo_id).first()
     if not grupo:
         raise HTTPException(status_code=404, detail="Grupo no encontrado")
+    
+    # Calcular disponibilidad
+    alumnos_actuales = db.query(Alumno).filter(
+        Alumno.grupo_id == grupo.id,
+        Alumno.activo == True
+    ).count()
+    grupo.disponibilidad = grupo.cupo_maximo - alumnos_actuales
+    
     return grupo
 
 

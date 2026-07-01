@@ -78,6 +78,30 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@router.post("/login/long-term", response_model=Token)
+def login_long_term(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """Genera un token de larga duración (1 año) para integraciones externas como n8n"""
+    admin = db.query(Admin).filter(Admin.username == form_data.username).first()
+    if not admin or not verify_password(form_data.password, admin.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Usuario o contraseña incorrectos",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    if not admin.activo:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuario inactivo",
+        )
+    
+    # Token de 1 año para integraciones externas
+    access_token_expires = timedelta(days=365)
+    access_token = create_access_token(
+        data={"sub": admin.username}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
 @router.get("/me")
 def read_users_me(current_admin: Admin = Depends(get_current_admin)):
     return {

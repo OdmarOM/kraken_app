@@ -19,7 +19,12 @@ def create_instructor(instructor: InstructorCreate, db: Session = Depends(get_db
 
 
 @router.get("/", response_model=List[InstructorResponse])
-def get_instructores(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_instructores(skip: int = 0, limit: int = 100, telefono: str = None, db: Session = Depends(get_db)):
+    if telefono:
+        instructor = db.query(Instructor).filter(Instructor.telefono == telefono).first()
+        if not instructor:
+            raise HTTPException(status_code=404, detail="Instructor no encontrado con ese teléfono")
+        return [instructor]
     instructores = db.query(Instructor).offset(skip).limit(limit).all()
     return instructores
 
